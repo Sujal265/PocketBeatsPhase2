@@ -25,122 +25,100 @@ import java.util.UUID;
  */
 public class Card implements Comparable<Card> {
 
-    Card(Suit suit, Rank rank) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+     public enum Rank {
+        ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING
     }
 
- public enum Rank {
-    ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING
-}
     public enum Suit {
-    HEARTS, SPADES, CLUBS, DIAMONDS
-}
+        HEARTS, SPADES, CLUBS, DIAMONDS
+    }
 
- private final Rank rank;
+    private final Rank rank;
     private final Suit suit;
     private final String id;
     private final String name;
     private final int manaCost;
-    private final int attack;
+    private AttackStrategy attackStrategy;
     private int health;
-    
-    public Card(Rank rank, Suit suit, String id, String name, int manaCost, int attack, int health) {
+    private int value;
+
+    public Card(Rank rank, Suit suit, String id, String name, int manaCost, AttackStrategy attackStrategy, int health) {
         this.rank = rank;
         this.suit = suit;
         this.id = id;
         this.name = name;
         this.manaCost = manaCost;
-        this.attack = attack;
+        this.attackStrategy = attackStrategy;
         this.health = health;
     }
-    
+
     public Card(Card card) {
         this.rank = card.rank;
         this.suit = card.suit;
         this.id = card.id;
         this.name = card.name;
         this.manaCost = card.manaCost;
-        this.attack = card.attack;
+        this.attackStrategy = card.attackStrategy;
         this.health = card.health;
     }
-    
+
     public Card(Rank rank, Suit suit) {
-    this.rank = rank;
-    this.suit = suit;
-    this.id = UUID.randomUUID().toString(); // generate a unique ID for the card
-    this.name = rank.toString() + " of " + suit.toString();
-    this.manaCost = rank.ordinal() + 1; // mana cost is equal to the rank value + 1
-    this.attack = rank.ordinal() + 1; // attack value is equal to the rank value + 1
-    this.health = rank.ordinal() + 1; // health value is equal to the rank value + 1
-}
+        this(rank, suit, UUID.randomUUID().toString(), rank.toString() + " of " + suit.toString(), rank.ordinal() + 1, new NormalAttackStrategy(), rank.ordinal() + 1);
+    }
+
     
-   public Rank getRank() {
+    public Rank getRank() {
         return this.rank;
     }
-    
+ 
+
     public Suit getSuit() {
         return this.suit;
     }
-    /**
-     * Returns the ID of the card.
-     */
+
     public String getId() {
         return this.id;
     }
-    
-    /**
-     * Returns the name of the card.
-     */
+
     public String getName() {
         return this.name;
     }
+     public int getValue() {
+        return this.value;
+    }
 
-    /**
-     * Returns the mana cost of the card.
-     */
+   
+
     public int getManaCost() {
         return this.manaCost;
     }
-    
-    /**
-     * Returns the attack value of the card.
-     */
+
     public int getAttack() {
-        return this.attack;
+        return this.attackStrategy.attack(this.rank.ordinal() + 1);
     }
 
-    /**
-     * Returns the health value of the card.
-     */
     public int getHealth() {
         return this.health;
     }
-    
-    /**
-     * Reduces the health of the card by the given amount.
-     */
-    public Card damage(int amount) {
-        return new Card(this.rank, this.suit, this.id, this.name, this.manaCost, this.attack, this.health - amount);
-    }
 
-    /**
-     * Returns a String representation of the card, including its name, ID, mana cost, attack value, and health value.
-     */
+    public Card damage(int amount) {
+        return new Card(this.rank, this.suit, this.id, this.name, this.manaCost, this.attackStrategy, this.health - amount);
+    }
+    
+
     @Override
     public String toString() {
         String formattedManaCost = String.format("%02d", this.manaCost);
-        return this.name + " (" + this.id + ")[ Mana Cost: " + formattedManaCost + " Attack: " + this.attack + " Health: " + this.health + "]";
+        return this.name + " (" + this.id + ")[ Mana Cost: " + formattedManaCost + " Attack: " + this.getAttack() + " Health: " + this.health + "]";
     }
 
-    /**
-     * Compares this card to another card based on their mana cost values.
-     */
     @Override
     public int compareTo(Card o) {
         return Integer.compare(this.getManaCost(), o.getManaCost());
-        
-     
     }
-   
+
+    public void setAttackStrategy(AttackStrategy strategy) {
+        this.attackStrategy = strategy;
+    }
    
    }

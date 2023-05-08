@@ -17,7 +17,10 @@
 package uk.ac.tees.cis2001.pocketbeasts;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -25,60 +28,103 @@ import java.util.Collections;
  * @author Steven Mead
  */
 public class Deck {
-    
-    Deck deck = new Deck();
-    private final ArrayList<Card> cards;
-    
 
+ private final List<Card> cards;
+    private final ShuffleStrategy shuffleStrategy;
 
-    public Deck(ArrayList<Card> cards) {
+    /**
+     * Constructs a new deck of cards.
+     * 
+     * @param cards the list of cards in the deck
+     * @param shuffleStrategy the shuffle strategy to use when shuffling the deck
+     */
+    public Deck(List<Card>  cards, ShuffleStrategy shuffleStrategy) {
         this.cards = new ArrayList<>(cards);
+        this.shuffleStrategy = shuffleStrategy;
+    }
+    
+    /**
+     * Constructs a new deck of cards with an empty list of cards and a default shuffle strategy.
+     */
+    public Deck() {
+        this.cards = new ArrayList<>();
+        this.shuffleStrategy = new FisherYatesShuffleStrategy();
     }
 
-    Deck() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
 
+
+  
+
+    /**
+     * Returns the number of cards in the deck.
+     * 
+     * @return the number of cards in the deck
+     */
     public int count() {
         return this.cards.size();
     }
 
+    /**
+     * Draws a card from the top of the deck.
+     * 
+     * @return the card drawn from the deck
+     */
     public Card draw() {
         return this.cards.remove(0);
     }
 
+    /**
+     * Shuffles the cards in the deck.
+     */
     public void shuffle() {
-        Collections.shuffle(this.cards);
+        this.shuffleStrategy.shuffle(this.cards);
     }
 
+    /**
+     * Adds a card to the bottom of the deck.
+     * 
+     * @param card the card to add to the deck
+     */
     public void addCard(Card card) {
         this.cards.add(card);
     }
 
+    /**
+     * Removes a specific card from the deck.
+     * 
+     * @param card the card to remove from the deck
+     */
     public void removeCard(Card card) {
-        this.cards.remove(card);
+        this.cards.removeIf(c -> Objects.equals(c, card));
     }
 
+    /**
+     * Removes all cards from the deck.
+     */
     public void clear() {
         this.cards.clear();
     }
 
+    /**
+     * Returns a string representation of the deck.
+     * 
+     * @return a string representation of the deck
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Deck: [\n");
-        for (int i = 0; i < this.cards.size(); i++) {
-            sb.append("  ");
-            sb.append(this.cards.get(i).toString());
-            if (i < this.cards.size() - 1) {
-                sb.append(" | ");
-            }
-            sb.append("\n");
+        for (Card card : cards) {
+            sb.append(card.toString()).append("\n");
         }
-        sb.append("]");
         return sb.toString();
     }
 
+    /**
+     * Returns true if the deck contains the specified card, false otherwise.
+     * 
+     * @param card the card to check for in the deck
+     * @return true if the deck contains the specified card, false otherwise
+     */
     public boolean contains(Card card) {
         return this.cards.contains(card);
     }

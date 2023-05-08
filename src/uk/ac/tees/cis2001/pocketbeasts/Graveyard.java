@@ -26,13 +26,15 @@ import java.util.List;
  */
 public class Graveyard {
     
-    private final ArrayList<Card> cards;
+      private final ArrayList<Card> cards;
+    private final GraveyardScoreStrategy scoreStrategy;
 
     /**
      * Constructs a new, empty graveyard.
      */
-    public Graveyard() {
+    public Graveyard(GraveyardScoreStrategy scoreStrategy) {
         this.cards = new ArrayList<>();
+        this.scoreStrategy = scoreStrategy;
     }
     
     /**
@@ -60,5 +62,14 @@ public class Graveyard {
      */
     public List<Card> getCards() {
         return new ArrayList<>(this.cards);
+    }
+    
+    /**
+     * Calculates the score of the graveyard using the current score strategy.
+     *
+     * @return The score of the graveyard.
+     */
+    public int calculateScore() {
+        return this.scoreStrategy.calculateScore(this.cards);
     }
 }

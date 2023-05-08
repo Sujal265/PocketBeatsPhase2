@@ -18,6 +18,7 @@ package uk.ac.tees.cis2001.pocketbeasts;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -28,15 +29,17 @@ import java.util.Scanner;
 public class Main {
     
     public static final Card[] STARTER_CARDS = new Card[] {
-           new Card(Card.Rank.ACE, Card.Suit.CLUBS, "BR", "Barn Rat", 1, 1, 1),
-    new Card(Card.Rank.TWO, Card.Suit.SPADES, "SP", "Scampering Pup", 2, 2, 1),
-    new Card(Card.Rank.THREE, Card.Suit.HEARTS, "HB", "Hardshell Beetle", 2, 1, 2),
-    new Card(Card.Rank.KING, Card.Suit.DIAMONDS, "VHC", "Vicious House Cat", 3, 3, 2),
-    new Card(Card.Rank.FIVE, Card.Suit.CLUBS, "GD", "Guard Dog", 3, 2, 3),
-    new Card(Card.Rank.QUEEN, Card.Suit.SPADES, "ARH", "All Round Hound", 3, 3, 3),
-    new Card(Card.Rank.SIX, Card.Suit.HEARTS, "MO", "Moor Owl", 4, 4, 2),
-    new Card(Card.Rank.JACK, Card.Suit.DIAMONDS, "HT", "Highland Tiger", 5, 4, 4)
+           new Card(Card.Rank.ACE, Card.Suit.CLUBS, "BR", "Barn Rat", 1, new NormalAttackStrategy(), 1),
+    new Card(Card.Rank.TWO, Card.Suit.SPADES, "SP", "Scampering Pup", 2, new NormalAttackStrategy(), 1),
+    new Card(Card.Rank.THREE, Card.Suit.HEARTS, "HB", "Hardshell Beetle", 2, new NormalAttackStrategy(), 2),
+    new Card(Card.Rank.KING, Card.Suit.DIAMONDS, "VHC", "Vicious House Cat", 3, new NormalAttackStrategy(), 2),
+    new Card(Card.Rank.FIVE, Card.Suit.CLUBS, "GD", "Guard Dog", 3, new NormalAttackStrategy(), 3),
+    new Card(Card.Rank.QUEEN, Card.Suit.SPADES, "ARH", "All Round Hound", 3, new NormalAttackStrategy(), 3),
+    new Card(Card.Rank.SIX, Card.Suit.HEARTS, "MO", "Moor Owl", 4, new NormalAttackStrategy(), 2),
+    new Card(Card.Rank.JACK, Card.Suit.DIAMONDS, "HT", "Highland Tiger", 5, new NormalAttackStrategy(), 4)
         };
+    
+    
     
     public static ArrayList<Card> getStarterDeck() {
         ArrayList<Card> starterDeck = new ArrayList<>();
@@ -51,16 +54,18 @@ public class Main {
     }
     
     public static String getPrompt(String prompt, String[] validResponse){
-        System.out.print(prompt);
-        
-        Scanner sc = new Scanner(System.in);
-        String response = sc.nextLine();
-        
-        if (Arrays.stream(validResponse).anyMatch(response::equals)) {
-            return response;
-        }
-        
-        return getPrompt(prompt, validResponse);
+         System.out.print(prompt);
+    
+    Scanner sc = new Scanner(System.in);
+    System.out.println(sc.toString()); // new line added
+    String response = sc.nextLine();
+    
+    if (Arrays.stream(validResponse).anyMatch(response::equals)) {
+        return response;
+    }
+    
+    return getPrompt(prompt, validResponse);
+
     }
     
     /**
@@ -101,11 +106,13 @@ public class Main {
         System.out.println("Press ENTER to continue...");
         Scanner sc = new Scanner(System.in);
         sc.nextLine();
-
-        Player[] players = new Player[] {
-            new Player("James", new Deck(getStarterDeck())),
-            new Player("Steve", new Deck(getStarterDeck()))
-        }; 
+        
+       
+ ArrayList<Card> starterDeck = getStarterDeck();
+    Player[] players = new Player[] {
+        new Player("James", new Deck(starterDeck)),
+        new Player("Steve", new Deck(starterDeck))
+    };
         
         for (Player player : players) {
             player.newGame();
@@ -223,6 +230,8 @@ public class Main {
         
         System.out.println(winningMessage);
     }
+    
+ 
 
     static Object getExitStatus() {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody

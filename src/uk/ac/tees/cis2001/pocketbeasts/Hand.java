@@ -26,11 +26,13 @@ import java.util.List;
  * @author Steven Mead
  */
 public class Hand {
-    
-    private final ArrayList<Card> cards;
 
-    public Hand() {
+private final ArrayList<Card> cards;
+    private final HandScoringStrategy scoringStrategy;
+
+    public Hand(HandScoringStrategy scoringStrategy) {
         this.cards = new ArrayList<>();
+        this.scoringStrategy = scoringStrategy;
     }
 
     public void add(Card card) {
@@ -54,31 +56,31 @@ public class Hand {
     public int count() {
         return this.cards.size();
     }
-    public int getSize() {
-    return cards.size();
-}
-    
+
     public List<Card> getCards() {
         return cards;
     }
 
+    public int calculateScore() {
+        return this.scoringStrategy.calculateScore(this.cards);
+    }
+
     @Override
     public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("[");
-    for (int i = 0; i < cards.size(); i++) {
-        sb.append(cards.get(i).toString());
-        if (i < cards.size() - 1) {
-            sb.append(" ");
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < cards.size(); i++) {
+            sb.append(cards.get(i).toString());
+            if (i < cards.size() - 1) {
+                sb.append(" ");
+            }
         }
-    }
-    sb.append("]");
-    return sb.toString();
+        sb.append("]");
+        return sb.toString();
     }
 
     private void sort() {
         Collections.sort(this.cards);
     }
 
-   
 }

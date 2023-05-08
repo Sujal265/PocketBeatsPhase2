@@ -16,6 +16,8 @@
  */
 package uk.ac.tees.cis2001.pocketbeasts;
 
+import static uk.ac.tees.cis2001.pocketbeasts.Main.getStarterDeck;
+
 /**
  *
  * @author James Fairbairn
@@ -23,16 +25,13 @@ package uk.ac.tees.cis2001.pocketbeasts;
  */
 public class Player {
     
-public static final int MAX_MANA = 9;
-
-    private final String name;
-    private int manaAvailable;
-    private int manaTicker;
+  private final String name;
     private int health;
     private final Deck deck;
     private final Hand hand;
     private final InPlay inPlay;
     private final Graveyard graveyard;
+    private ManaStrategy manaStrategy;
 
     /**
      * Creates a new instance of the Player class with the specified name, deck, hand, inPlay, and graveyard.
@@ -41,20 +40,34 @@ public static final int MAX_MANA = 9;
      * @param hand The hand of cards for the player.
      * @param inPlay The cards in play for the player.
      * @param graveyard The graveyard of cards for the player.
+     * @param manaStrategy The strategy for determining mana availability.
      */
-    public Player(String name, Deck deck, Hand hand, InPlay inPlay, Graveyard graveyard) {
+    public Player(String name, Deck deck, Hand hand, InPlay inPlay, Graveyard graveyard, ManaStrategy manaStrategy) {
         this.name = name;
-        this.manaAvailable = 0;
-        this.manaTicker = 0;
         this.health = 15;
         this.deck = deck;
         this.hand = hand;
         this.inPlay = inPlay;
         this.graveyard = graveyard;
+        this.manaStrategy = manaStrategy;
     }
 
-    Player(String james, Deck deck) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    /**
+     * Gets the amount of mana available to the player.
+     * @return The amount of mana available to the player.
+     */
+    public int getManaAvailable() {
+        return this.manaStrategy.getManaAvailable();
+    }
+
+    /**
+     * Initializes a new game by shuffling the deck and drawing four cards.
+     */
+    public void newGame() {
+        this.deck.shuffle();
+        for (int i = 0; i < 4; i++) {
+            this.hand.add(this.deck.draw());
+        }
     }
 
     /**
@@ -63,14 +76,6 @@ public static final int MAX_MANA = 9;
      */
     public String getName() {
         return this.name;
-    }
-
-    /**
-     * Gets the amount of mana available to the player.
-     * @return The amount of mana available to the player.
-     */
-    public int getManaAvailable() {
-        return this.manaAvailable;
     }
 
     /**
@@ -104,7 +109,6 @@ public static final int MAX_MANA = 9;
     public InPlay getInPlay() {
         return this.inPlay;
     }
-    
 
     /**
      * Gets the graveyard of cards for the player.
@@ -115,30 +119,37 @@ public static final int MAX_MANA = 9;
     }
 
     /**
-     * Initializes a new game by shuffling the deck and drawing four cards.
+     * Adds a mana crystal to the player's mana pool, up to a maximum of 9 mana crystals.
      */
-    public void newGame() {
-        this.deck.shuffle();
-        for (int i = 0; i < 4; i++) {
-            this.hand.add(this.deck.draw());
+    public void addMana() {
+        int manaAvailable = getManaAvailable();
+        if (manaAvailable < 9) {
+            manaAvailable++;
+            manaStrategy.setManaAvailable(manaAvailable);
         }
     }
 
     /**
+     * Uses the specified amount of mana from the player's mana pool.
+     * @param amount The amount of mana to use.
+     * @throws IllegalArgumentException If the player does not have enough mana available.
+     */
+    public void useMana(int amount) {
+    int manaAvailable = getManaAvailable();
+    if (amount > manaAvailable) {
+        throw new IllegalArgumentException("Insufficient mana");
+    } else {
+        manaStrategy.setManaAvailable(manaAvailable - amount);
+        System.out.println("Used " + amount + " mana. " + getManaAvailable() + " mana remaining.");
+    }
+}
+   
+ 
+
+    /**
      * Adds a mana crystal to the player's mana pool, up to a maximum of 9 mana crystals.
      */
-    public void addMana() {
-        if (this.manaTicker < MAX_MANA) {
-            this.manaTicker++;
-        }
-        this.manaAvailable = manaTicker;
-    }
-    public void useMana(int amount) {
-        if (amount > this.manaAvailable) {
-            throw new IllegalArgumentException("Insufficient mana");
-        }
-        this.manaAvailable -= amount;
-    }
+
 
     public void drawCard() {
         this.hand.add(this.deck.draw());
@@ -150,43 +161,49 @@ public static final int MAX_MANA = 9;
     
     }
     
-       public static String displayPlayer(Player player) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%-9s HEALTH/%-5d MANA/%d\n", player.getName(), player.getHealth(), player.getManaAvailable()));
-
-        for (int i=0; i<player.getInPlay().count()+2; i++) {
-            sb.append("+-------+ ");
-        }
-        sb.append("\n");
-        
-        for (int i=0; i<2; i++) {
-            sb.append("|       | ");
-        }
-        for (int i=0; i<player.getInPlay().count(); i++) {
-            sb.append(String.format("|%7d| ", player.getInPlay().getCard(i).getManaCost()));
-        }
-        sb.append("\n");
-        
-        sb.append("| DECK  | ");
-        sb.append("| GRAVE | ");
-        for (int i=0; i<player.getInPlay().count(); i++) {
-            sb.append(String.format("|%7s| ", ""));
-        }
-        sb.append("\n");
-        
-        for (int i=0; i<2; i++) {
-            sb.append("|       | ");
-        }
-        for (int i=0; i<player.getInPlay().count(); i++) {
-            sb.append(String.format("|%7s| ", ""));
-        }
-        sb.append("\n");
-        
-        for (int i=0; i<player.getInPlay().count()+2; i++) {
-            sb.append("+-------+ ");
-        }
-        sb.append("\n");
-        
-        return sb.toString();
+   private static String formatCardRow(Player player) {
+    StringBuilder sb = new StringBuilder();
+    for (int i=0; i<2; i++) {
+        sb.append("|       | ");
     }
+    for (int i=0; i<player.getInPlay().count(); i++) {
+        sb.append(String.format("|%7d| ", player.getInPlay().getCard(i).getManaCost()));
+    }
+    sb.append("\n");
+
+    for (int i=0; i<2; i++) {
+        sb.append("|       | ");
+    }
+    for (int i=0; i<player.getInPlay().count(); i++) {
+        sb.append(String.format("|%7s| ", ""));
+    }
+    return sb.toString();
+}
+
+public static String displayPlayer(Player player) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(String.format("%-9s HEALTH/%-5d MANA/%d\n", player.getName(), player.getHealth(), player.getManaAvailable()));
+
+    for (int i=0; i<player.getInPlay().count()+2; i++) {
+        sb.append("+-------+ ");
+    }
+    sb.append("\n");
+
+    sb.append(formatCardRow(player));
+
+    sb.append("| DECK  | ");
+    sb.append("| GRAVE | ");
+    for (int i=0; i<player.getInPlay().count(); i++) {
+        sb.append(String.format("|%7s| ", ""));
+    }
+    sb.append("\n");
+
+    for (int i=0; i<2; i++) {
+        sb.append("|       | ");
+    }
+    for (int i=0; i<player.getInPlay().count(); i++) {
+        sb.append(String.format("|%7s| ", ""));
+    }
+    return sb.toString();
+}
 }

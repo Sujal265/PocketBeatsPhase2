@@ -27,63 +27,38 @@ import java.util.List;
  */
 public class InPlay {
     
-    /** The list of cards that are currently in play. */
+    private final InPlayScoringStrategy scoringStrategy;
     private final List<Card> cards;
 
-    /**
-     * Constructs a new instance of the InPlay class.
-     */
-    public InPlay() {
+    public InPlay(InPlayScoringStrategy scoringStrategy) {
+        this.scoringStrategy = scoringStrategy;
         this.cards = new ArrayList<>();
     }
 
-    /**
-     * Gets the list of cards that are currently in play.
-     * @return The list of cards that are currently in play.
-     */
+    public int calculateScore() {
+        return this.scoringStrategy.calculateScore(this.cards);
+    }
+
     public List<Card> getCards() {
         return cards;
     }
-    
-    
 
-    /**
-     * Gets a card from the list of cards that are currently in play.
-     * @param index The index of the card to get.
-     * @return The card at the specified index.
-     */
     public Card getCard(int index) {
         return cards.get(index);
     }
 
-    /**
-     * Adds a card to the list of cards that are currently in play.
-     * @param card The card to add.
-     */
     public void add(Card card) {
         this.cards.add(card);
     }
 
-    /**
-     * Removes a card from the list of cards that are currently in play.
-     * @param card The card to remove.
-     */
     public void remove(Card card) {
         this.cards.remove(card);
     }
 
-    /**
-     * Removes all cards from the list of cards that are currently in play.
-     * @param cards The collection of cards to remove.
-     */
     public void removeAll(Collection<Card> cards) {
         this.cards.removeAll(cards);
     }
 
-    /**
-     * Gets the number of cards that are currently in play.
-     * @return The number of cards that are currently in play.
-     */
     public int count() {
         return this.cards.size();
     }
